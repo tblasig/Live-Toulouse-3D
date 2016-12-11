@@ -1,7 +1,7 @@
 {
-  "name": "es6-angular-boilerplate",
+  "name": "Live Toulouse 3D",
   "version": "0.0.1",
-  "description": "A simple Angular ES6 boilerplate with babel and webpack. It comes with some components and services as an examples.",
+  "description": "Display the Toulouse's buses in 3D",
   "main": "scripts/main.js",
   "dependencies": {
     "angular": "^1.5.1",
@@ -29,23 +29,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/asainz/es6-angular-boilerplate.git"
-  },
-  "bug": {
-    "url": "https://github.com/asainz/es6-angular-boilerplate/issues"
-  },
-  "author": "Andres Sainz de Aja",
+  "author": "Thomas BLASIG",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "thomasblasig.fr",
   "keywords": [
     "angular",
     "angular",
     "1.5",
     "es6",
-    "boilerplate",
-    "babel",
-    "webpack"
+    "ThreeJS",
+    "Vizicities",
+    "Toulouse"
   ]
 }
