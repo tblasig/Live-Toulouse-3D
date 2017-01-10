@@ -1,9 +1,16 @@
+import {StringConstants} from '../src/StringConstants';
+import {MaterialFactory} from '../src/Factory/MaterialFactory';
+
 class ContentController {
     constructor() {
 
-        // Toulouse
-        this._coords = [43.600000, 1.433333];
+        this._buses = new Array();
+        this._coords = StringConstants.COORDS_WORLD;
+
+        this.container = angular.element(document.querySelectorAll('#world'));
+        this.initThreeJS();
         this.initWorld();
+
     }
 
     initWorld() {
@@ -13,6 +20,11 @@ class ContentController {
             postProcessing: false
         }).setView(this._coords);
 
+        this._world._engine._renderer = this.renderer;
+        this.scene = this._world._engine._scene;
+
+        this.camera = this._world._engine._camera;
+
         // Set position of sun in sky
         this._world._environment._skybox.setInclination(0.1);
 
@@ -20,39 +32,59 @@ class ContentController {
         VIZI.Controls.orbit().addTo(this._world);
 
         // CartoDB basemap
-        VIZI.imageTileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+        VIZI.imageTileLayer(StringConstants.MAP_TILE_LANDSCAPE, {
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         }).addTo(this._world);
 
-        // Buildings and roads from Mapzen (polygons and linestrings)
-        var topoJSONTileLayer = VIZI.topoJSONTileLayer('https://vector.mapzen.com/osm/buildings,roads/{z}/{x}/{y}.topojson?api_key=vector-tiles-NT5Emiw', {
-            interactive: false,
+
+        VIZI.topoJSONTileLayer(StringConstants.BUILDING_DATA, {
+            output: true,
+            interactive: true,
+
+            polygonMaterial: function() {
+                return MaterialFactory.getBuildingMaterial();
+            },
+
             style: function(feature) {
-                var height;
-
-                if (feature.properties.height) {
-                    height = feature.properties.height;
-                } else {
-                    height = 10 + Math.random() * 10;
-                }
-
-                return {
-                    height: height,
-                    lineColor: '#f7c616',
-                    lineWidth: 1,
-                    lineTransparent: true,
-                    lineOpacity: 0.2,
-                    lineBlending: THREE.AdditiveBlending,
-                    lineRenderOrder: 2
-                };
+                return MaterialFactory.getFeatureStyle(feature);
             },
+
             filter: function(feature) {
-                // Don't show points
-                return feature.geometry.type !== 'Point';
+                return MaterialFactory.getFilter(feature);
             },
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://whosonfirst.mapzen.com#License">Who\'s On First</a>.'
         }).addTo(this._world);
+
+        //1/6 of geojson came from (perf issues) https://data.toulouse-metropole.fr/api/records/1.0/search/?dataset=arrets-de-bus0'
+        VIZI.geoJSONLayer('https://api.myjson.com/bins/12cs99', {
+            output: true,
+            style: {
+                color: '#ff0000',
+                lineColor: '#ff0000',
+                lineRenderOrder: 1,
+                pointColor: '#00cc00'
+            },
+            pointGeometry: function(feature) {
+                var geometry = new THREE.BoxGeometry( 12, 200, 50 );
+                return geometry;
+            },
+            onEachFeature: function(feature, layer) {
+                layer.on('click', function (layer, point2d, point3d, intersects) {
+                    var id = layer.feature.properties.LAD11CD;
+                    var value = layer.feature.properties.POPDEN;
+
+                    console.log(id + ': ' + value, layer, point2d, point3d, intersects);
+                })
+            }
+        }).addTo(this._world);
+
     }
+
+    initThreeJS() {
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize( window.innerWidth, 1200);
+        this.container.append(this.renderer.domElement);
+    }
+
 }
 
 export default ContentController;

@@ -1,6 +1,8 @@
 The MIT License (MIT)
 
-Copyright (c) 2016 Andres Sainz de aja
+Copyright (c) 2016 Thomas BLASIG
+
+From a angular-ES6 boilerplate created by Andres Sainz de aja (c) 2016
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
