@@ -8,7 +8,6 @@ export class MaterialFactory{
 
     }
 
-
     static getFeatureStyle(feature) {
 
         var height =0;
@@ -35,6 +34,15 @@ export class MaterialFactory{
     }
 
 
+    static getRoadMaterial() {
+
+      return new THREE.LineBasicMaterial({
+    	   color: 0x00ff00
+       });
+
+    }
+
+
     static getTileMaterial() {
         return new THREE.MeshBasicMaterial({
             depthWrite: true
@@ -46,5 +54,14 @@ export class MaterialFactory{
         return feature.geometry.type !== 'Point';
     }
 
+    static getStopTexture(){
+      if (MaterialFactory.cacheTexture == undefined){
+        MaterialFactory.cacheTexture = THREE.ImageUtils.loadTexture('./scripts/components/vendor/bus.png');
+      }
+      return MaterialFactory.cacheTexture;
+    }
+
 
 }
+
+MaterialFactory.cacheTexture = undefined;

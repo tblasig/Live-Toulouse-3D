@@ -1,15 +1,22 @@
 import {StringConstants} from '../src/StringConstants';
 import {MaterialFactory} from '../src/Factory/MaterialFactory';
+import {Stop} from '../src/Models/Stop';
+import {StaticGeoJSONFactory} from '../src/Factory/StaticGeoJSONFactory';
 
 class ContentController {
-    constructor() {
+    constructor($http) {
 
+        this._$http = $http;
         this._buses = new Array();
-        this._coords = StringConstants.COORDS_WORLD;
 
         this.container = angular.element(document.querySelectorAll('#world'));
         this.initThreeJS();
-        this.initWorld();
+        this.initWorld($http);
+
+        VIZI.myScene = this.scene;
+        VIZI.myWorld = this._world;
+
+
 
     }
 
@@ -18,7 +25,7 @@ class ContentController {
         this._world = VIZI.world('world', {
             skybox: true,
             postProcessing: false
-        }).setView(this._coords);
+        }).setView(StringConstants.COORDS_WORLD);
 
         this._world._engine._renderer = this.renderer;
         this.scene = this._world._engine._scene;
@@ -31,10 +38,18 @@ class ContentController {
         // Add controls
         VIZI.Controls.orbit().addTo(this._world);
 
+
+
         // CartoDB basemap
         VIZI.imageTileLayer(StringConstants.MAP_TILE_LANDSCAPE, {
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+          distance: 12000,
+    			// base is a yuge plane under the tiles, give it one material instance
+    			baseMaterial: MaterialFactory.getTileMaterial(),
+    			// this is a material for each tile, each tile needs a separate one (bc texture is different on each)
+    			tileMaterial: MaterialFactory.getTileMaterial(),
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         }).addTo(this._world);
+
 
 
         VIZI.topoJSONTileLayer(StringConstants.BUILDING_DATA, {
@@ -54,28 +69,32 @@ class ContentController {
             },
         }).addTo(this._world);
 
-        //1/6 of geojson came from (perf issues) https://data.toulouse-metropole.fr/api/records/1.0/search/?dataset=arrets-de-bus0'
-        VIZI.geoJSONLayer('https://api.myjson.com/bins/12cs99', {
-            output: true,
-            style: {
-                color: '#ff0000',
-                lineColor: '#ff0000',
-                lineRenderOrder: 1,
-                pointColor: '#00cc00'
-            },
-            pointGeometry: function(feature) {
-                var geometry = new THREE.BoxGeometry( 12, 200, 50 );
-                return geometry;
-            },
-            onEachFeature: function(feature, layer) {
-                layer.on('click', function (layer, point2d, point3d, intersects) {
-                    var id = layer.feature.properties.LAD11CD;
-                    var value = layer.feature.properties.POPDEN;
 
-                    console.log(id + ': ' + value, layer, point2d, point3d, intersects);
-                })
-            }
+      //Roads
+        VIZI.topoJSONTileLayer(StringConstants.ROAD_DATA, {
+            output: true,
+            keepFeatures : true,
+            interactive : true,
         }).addTo(this._world);
+
+        //Buses stop
+        StaticGeoJSONFactory.geoJSONLayer(this._$http, 'https://api.myjson.com/bins/12cs99', {
+          onEachFeature : function(feature){
+            var lat = feature.geometry.coordinates[1];
+            var long = feature.geometry.coordinates[0];
+            var latlon = new VIZI.LatLon(lat, long, 0);
+            var pt = VIZI.myWorld.latLonToPoint(latlon);
+
+            let stop = new Stop();
+
+            stop.position.x = pt.x;
+            stop.position.z = pt.y;
+            stop.lookAt(VIZI.myWorld._engine._camera);
+            VIZI.myScene.add(stop);
+          }
+        });
+
+
 
     }
 

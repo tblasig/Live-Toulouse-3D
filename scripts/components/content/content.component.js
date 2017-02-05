@@ -4,7 +4,7 @@ import './content.styles.scss';
 
 let contentComponent = {
     template,
-    controller,
+    controller :['$http', controller],
     replace: true
 };
 
