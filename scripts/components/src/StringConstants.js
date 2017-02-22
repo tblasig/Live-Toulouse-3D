@@ -17,11 +17,12 @@ export class StringConstants {
     }
 
     static get BUILDING_DATA() {
-        return "https://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.topojson?api_key=vector-tiles-NT5Emiw";
+        
+        return "https://tile.mapzen.com/mapzen/vector/v1/buildings/{z}/{x}/{y}.topojson?api_key=vector-tiles-NT5Emiw";
     }
 
     static get ROAD_DATA() {
-        return "https://vector.mapzen.com/osm/roads/{z}/{x}/{y}.topojson?api_key=vector-tiles-NT5Emiw";
+        return "https://tile.mapzen.com/mapzen/vector/v1/roads/{z}/{x}/{y}.topojson?api_key=vector-tiles-NT5Emiw";
     }
 
     //Plug on Toulouse
