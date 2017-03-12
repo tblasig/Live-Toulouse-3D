@@ -1,5 +1,5 @@
 {
-  "name": "Live Toulouse 3D",
+  "name": "livetoulouse",
   "version": "0.0.1",
   "description": "Display the Toulouse's buses in 3D",
   "main": "scripts/main.js",
